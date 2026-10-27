@@ -373,8 +373,52 @@ def train_diloco(init_params, worker_shards, num_rounds, num_inner_steps, batch_
 
     return params, history
 
-# Step 27 - train_synchronous_baseline (not yet solved)
-# TODO: implement
+# Step 27 - train_synchronous_baseline
+def train_synchronous_baseline(init_params, worker_shards, num_steps, batch_size, inner_hparams, seed=0):
+    params = clone_params(init_params)
+    adam_state = init_adamw_state(params)
+    rng = np.random.default_rng(seed)
+    history = {"step_losses": []}
+
+    lr = inner_hparams["lr"]
+    beta1 = inner_hparams["beta1"]
+    beta2 = inner_hparams["beta2"]
+    eps = inner_hparams["eps"]
+    weight_decay = inner_hparams["weight_decay"]
+
+    for _ in range(num_steps):
+        worker_grads = []
+        worker_losses = []
+
+        for x_shard, y_shard in worker_shards:
+            x_batch, y_batch = sample_worker_batch(
+                x_shard, y_shard, batch_size, rng
+            )
+
+            logits, cache = model_forward(params, x_batch)
+            loss = cross_entropy_loss(logits, y_batch)
+            grads = model_backward(params, cache, y_batch)
+
+            worker_grads.append(grads)
+            worker_losses.append(loss)
+
+        if not worker_grads:
+            history["step_losses"].append(0.0)
+            continue
+
+        avg_grads = average_params(worker_grads)
+
+        update_adam_moments(adam_state, avg_grads, beta1, beta2)
+        m_hat, v_hat = bias_correct_moments(adam_state, beta1, beta2)
+
+        params = adam_param_step(params, m_hat, v_hat, lr, eps)
+        params = decoupled_weight_decay(params, lr, weight_decay)
+
+        history["step_losses"].append(
+            float(np.mean(worker_losses))
+        )
+
+    return params, history
 
 # Step 28 - evaluate_loss (not yet solved)
 # TODO: implement
