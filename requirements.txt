@@ -1,0 +1,2 @@
+numpy>=1.22
+matplotlib>=3.5  # only needed for sweep_h.py

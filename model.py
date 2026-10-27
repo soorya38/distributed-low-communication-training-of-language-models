@@ -1,12 +1,21 @@
 """
-DiLoCo: Distributed Low-Communication Training of Language Models
+DiLoCo: Distributed Low-Communication Training of Language Models.
 
-Assembled from your step-by-step solutions.
+A from-scratch NumPy implementation: a 2-layer MLP with hand-written backprop,
+AdamW as the inner optimizer, Nesterov momentum as the outer optimizer, and a
+synchronous data-parallel baseline for comparison.
+
+Parameters are plain dicts of arrays, e.g. {"W1", "b1", "W2", "b2"}.
 """
 
 import numpy as np
 
-# Step 1 - init_model_params
+
+# --------------------------------------------------------------------------
+# Model, forward pass & loss
+# --------------------------------------------------------------------------
+
+
 def init_model_params(input_dim, hidden_dim, output_dim, seed=0):
     rng = np.random.default_rng(seed)
 
@@ -17,14 +26,10 @@ def init_model_params(input_dim, hidden_dim, output_dim, seed=0):
         "b2": np.zeros(output_dim, dtype=np.float64),
     }
 
-# Step 2 - relu
-import numpy as np
 
 def relu(x):
     return np.maximum(0, x)
 
-# Step 3 - model_forward
-import numpy as np
 
 def model_forward(params, x):
     """Run the 2-layer MLP forward pass and stash intermediates for backprop."""
@@ -41,16 +46,12 @@ def model_forward(params, x):
 
     return logits, cache
 
-# Step 4 - softmax
-import numpy as np
 
 def softmax(logits):
     shifted = logits - np.max(logits, axis=1, keepdims=True)
     exp_logits = np.exp(shifted)
     return exp_logits / np.sum(exp_logits, axis=1, keepdims=True)
 
-# Step 5 - cross_entropy_loss
-import numpy as np
 
 def cross_entropy_loss(logits, labels):
     max_logits = np.max(logits, axis=1, keepdims=True)
@@ -61,7 +62,7 @@ def cross_entropy_loss(logits, labels):
     true_logits = logits[np.arange(len(labels)), labels]
     return np.mean(log_sum_exp - true_logits)
 
-# Step 6 - model_backward
+
 def model_backward(params, cache, labels):
     x = cache["x"]
     z1 = cache["z1"]
@@ -94,7 +95,12 @@ def model_backward(params, cache, labels):
         "b2": db2,
     }
 
-# Step 7 - init_adamw_state
+
+# --------------------------------------------------------------------------
+# Inner optimizer: AdamW
+# --------------------------------------------------------------------------
+
+
 def init_adamw_state(params):
     return {
         "m": {k: np.zeros_like(v) for k, v in params.items()},
@@ -102,7 +108,7 @@ def init_adamw_state(params):
         "t": 0,
     }
 
-# Step 8 - update_adam_moments
+
 def update_adam_moments(state, grads, beta1, beta2):
     state["t"] += 1
 
@@ -112,7 +118,7 @@ def update_adam_moments(state, grads, beta1, beta2):
 
     return state
 
-# Step 9 - bias_correct_moments
+
 def bias_correct_moments(state, beta1, beta2):
     t = state["t"]
 
@@ -128,15 +134,13 @@ def bias_correct_moments(state, beta1, beta2):
 
     return m_hat, v_hat
 
-# Step 10 - adam_param_step
+
 def adam_param_step(params, m_hat, v_hat, lr, eps):
     return {
         k: params[k] - lr * m_hat[k] / (np.sqrt(v_hat[k]) + eps)
         for k in params
     }
 
-# Step 11 - decoupled_weight_decay
-import numpy as np
 
 def decoupled_weight_decay(params, lr, weight_decay):
     return {
@@ -144,35 +148,45 @@ def decoupled_weight_decay(params, lr, weight_decay):
         for k, v in params.items()
     }
 
-# Step 12 - clone_params
+
+# --------------------------------------------------------------------------
+# Parameter arithmetic
+# --------------------------------------------------------------------------
+
+
 def clone_params(params):
     return {
         k: v.copy()
         for k, v in params.items()
     }
 
-# Step 13 - scale_params
+
 def scale_params(params, scalar):
     return {
         k: v * scalar
         for k, v in params.items()
     }
 
-# Step 14 - subtract_params
+
 def subtract_params(params_a, params_b):
     return {
         k: params_a[k] - params_b[k]
         for k in params_a
     }
 
-# Step 15 - average_params
+
 def average_params(params_list):
     return {
         k: np.mean([params[k] for params in params_list], axis=0)
         for k in params_list[0]
     }
 
-# Step 16 - iid_shard_dataset
+
+# --------------------------------------------------------------------------
+# Data sharding & local worker training
+# --------------------------------------------------------------------------
+
+
 def iid_shard_dataset(x, y, num_workers, seed=0):
     rng = np.random.default_rng(seed)
     indices = rng.permutation(len(x))
@@ -184,7 +198,7 @@ def iid_shard_dataset(x, y, num_workers, seed=0):
         for shard in x_shards
     ]
 
-# Step 17 - noniid_shard_dataset
+
 def noniid_shard_dataset(x, y, num_workers, num_classes, seed=0):
     rng = np.random.default_rng(seed)
     shards = []
@@ -203,7 +217,7 @@ def noniid_shard_dataset(x, y, num_workers, num_classes, seed=0):
 
     return shards
 
-# Step 18 - sample_worker_batch
+
 def sample_worker_batch(x_shard, y_shard, batch_size, rng):
     n = len(x_shard)
     indices = rng.choice(
@@ -214,7 +228,7 @@ def sample_worker_batch(x_shard, y_shard, batch_size, rng):
 
     return x_shard[indices], y_shard[indices]
 
-# Step 19 - local_train_step
+
 def local_train_step(params, adam_state, x_batch, y_batch, lr, beta1, beta2, eps, weight_decay):
     # Forward pass
     logits, cache = model_forward(params, x_batch)
@@ -247,7 +261,7 @@ def local_train_step(params, adam_state, x_batch, y_batch, lr, beta1, beta2, eps
 
     return new_params, new_adam_state, loss
 
-# Step 20 - inner_train_worker
+
 def inner_train_worker(params, x_shard, y_shard, num_inner_steps, batch_size, lr, beta1, beta2, eps, weight_decay, seed):
     rng = np.random.default_rng(seed)
     worker_params = clone_params(params)
@@ -271,7 +285,12 @@ def inner_train_worker(params, x_shard, y_shard, num_inner_steps, batch_size, lr
 
     return worker_params, mean_loss
 
-# Step 21 - init_outer_optimizer
+
+# --------------------------------------------------------------------------
+# Outer optimizer: Nesterov momentum
+# --------------------------------------------------------------------------
+
+
 def init_outer_optimizer(params):
     return {
         "momentum": {
@@ -280,8 +299,6 @@ def init_outer_optimizer(params):
         }
     }
 
-# Step 22 - update_outer_momentum
-import numpy as np
 
 def update_outer_momentum(outer_state, outer_grad, momentum_coef):
     for k in outer_state["momentum"]:
@@ -292,7 +309,7 @@ def update_outer_momentum(outer_state, outer_grad, momentum_coef):
 
     return outer_state
 
-# Step 23 - nesterov_param_update
+
 def nesterov_param_update(params, outer_state, outer_grad, outer_lr, momentum_coef):
     return {
         k: params[k] - outer_lr * (
@@ -301,12 +318,17 @@ def nesterov_param_update(params, outer_state, outer_grad, outer_lr, momentum_co
         for k in params
     }
 
-# Step 24 - compute_outer_gradient
+
 def compute_outer_gradient(global_params, worker_params_list):
     avg_worker_params = average_params(worker_params_list)
     return subtract_params(global_params, avg_worker_params)
 
-# Step 25 - run_diloco_round
+
+# --------------------------------------------------------------------------
+# DiLoCo training loop & synchronous baseline
+# --------------------------------------------------------------------------
+
+
 def run_diloco_round(global_params, outer_state, worker_shards, num_inner_steps, batch_size, inner_hparams, outer_lr, momentum_coef, seed):
     worker_params_list = []
     worker_losses = []
@@ -346,7 +368,7 @@ def run_diloco_round(global_params, outer_state, worker_shards, num_inner_steps,
 
     return new_global_params, outer_state, worker_losses
 
-# Step 26 - train_diloco
+
 def train_diloco(init_params, worker_shards, num_rounds, num_inner_steps, batch_size, inner_hparams, outer_lr, momentum_coef, seed=0):
     params = clone_params(init_params)
     outer_state = init_outer_optimizer(params)
@@ -373,7 +395,7 @@ def train_diloco(init_params, worker_shards, num_rounds, num_inner_steps, batch_
 
     return params, history
 
-# Step 27 - train_synchronous_baseline
+
 def train_synchronous_baseline(init_params, worker_shards, num_steps, batch_size, inner_hparams, seed=0):
     params = clone_params(init_params)
     adam_state = init_adamw_state(params)
@@ -420,18 +442,23 @@ def train_synchronous_baseline(init_params, worker_shards, num_steps, batch_size
 
     return params, history
 
-# Step 28 - evaluate_loss
+
+# --------------------------------------------------------------------------
+# Evaluation & communication analysis
+# --------------------------------------------------------------------------
+
+
 def evaluate_loss(params, x, y):
     logits, _ = model_forward(params, x)
     return float(cross_entropy_loss(logits, y))
 
-# Step 29 - classification_accuracy
+
 def classification_accuracy(params, x, y):
     logits, _ = model_forward(params, x)
     predictions = np.argmax(logits, axis=1)
     return float(np.mean(predictions == y))
 
-# Step 30 - communication_savings
+
 def communication_savings(num_rounds, num_inner_steps, num_workers, param_count):
     diloco_scalars = 2 * num_workers * param_count * num_rounds
     sync_scalars = 2 * num_workers * param_count * num_rounds * num_inner_steps
