@@ -28,7 +28,7 @@ python scaffold.py
 - [x] **16.** iid_shard_dataset
 - [x] **17.** noniid_shard_dataset
 - [x] **18.** sample_worker_batch
-- [ ] **19.** local_train_step
+- [x] **19.** local_train_step
 - [ ] **20.** inner_train_worker
 - [ ] **21.** init_outer_optimizer
 - [ ] **22.** update_outer_momentum
