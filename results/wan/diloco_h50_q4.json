@@ -1,0 +1,40 @@
+{
+  "name": "diloco H=50 4-bit",
+  "mode": "diloco",
+  "inner_steps": 50,
+  "quantize_bits": 4,
+  "error_feedback": true,
+  "fragments": 1,
+  "world_size": 4,
+  "device": "cpu",
+  "steps": 300,
+  "params": 809856,
+  "tokens_per_worker": 614400,
+  "final_val_loss": 2.169740378856659,
+  "history": {
+    "step": [
+      1,
+      50,
+      100,
+      150,
+      200,
+      250,
+      300
+    ],
+    "val_loss": [
+      4.210724663734436,
+      2.6999164462089538,
+      2.5986596584320067,
+      2.5133176326751707,
+      2.3243524074554442,
+      2.2368540167808533,
+      2.169740378856659
+    ]
+  },
+  "seconds": 34.565000599000086,
+  "comm_seconds_rank0": 2.965077084999848,
+  "syncs": 6,
+  "bytes_sent_per_worker": 2448936,
+  "peak_bytes_per_sync": 408156,
+  "sample": "ROMEO:\nSoreme the sorsell ifor a meank's ayd I to ther\nThour with thaverere hath this beiell sounser bone at of pordied\n\n\nYoucht your forr not my matte the wout to a ma I mendoth,\nWhe cove shew the strue wand to for his mily moon not say eins of leang of with' im me thour\nAs toing to thor the st st have a"
+}

@@ -1,0 +1,40 @@
+{
+  "name": "ddp",
+  "mode": "ddp",
+  "inner_steps": 1,
+  "quantize_bits": null,
+  "error_feedback": false,
+  "fragments": 1,
+  "world_size": 4,
+  "device": "cpu",
+  "steps": 300,
+  "params": 809856,
+  "tokens_per_worker": 614400,
+  "final_val_loss": 1.9787879645824433,
+  "history": {
+    "step": [
+      1,
+      50,
+      100,
+      150,
+      200,
+      250,
+      300
+    ],
+    "val_loss": [
+      4.1444449663162235,
+      2.597693145275116,
+      2.404972994327545,
+      2.269813323020935,
+      2.133949315547943,
+      2.047938048839569,
+      1.9787879645824433
+    ]
+  },
+  "seconds": 35.02503509899998,
+  "comm_seconds_rank0": null,
+  "syncs": 300,
+  "bytes_sent_per_worker": 971827200,
+  "peak_bytes_per_sync": 3239424,
+  "sample": "ROMEO:\nWhy mhise haves lord?\nHis meardy your I to the Mycomers,\nOr now here hath offole helly sonser, the at off or it por ancesend\nAnd trone devainss! Here sore for morkion?\n\nLOF Prescon:\nBy wenture have and to forthirs iffort-ennd,\nWhereight, queenleome inle in me sto dom.\n\nKEDWAS ERLMAB:\nMy kort! my ha"
+}

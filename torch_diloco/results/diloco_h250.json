@@ -1,0 +1,46 @@
+{
+  "mode": "diloco",
+  "inner_steps": 250,
+  "world_size": 4,
+  "steps": 3000,
+  "params": 809856,
+  "tokens_per_worker": 6144000,
+  "final_val_loss": 1.5942350029945374,
+  "history": {
+    "step": [
+      1,
+      250,
+      500,
+      750,
+      1000,
+      1250,
+      1500,
+      1750,
+      2000,
+      2250,
+      2500,
+      2750,
+      3000
+    ],
+    "val_loss": [
+      4.145922565460205,
+      2.3589916229248047,
+      2.229269063472748,
+      2.020835256576538,
+      1.874635237455368,
+      1.8182402312755586,
+      1.7809403479099273,
+      1.6968089938163757,
+      1.6432199597358703,
+      1.6183050572872162,
+      1.6036240458488464,
+      1.6047009527683258,
+      1.5942350029945374
+    ]
+  },
+  "seconds": 105.07835649999834,
+  "comm_seconds_rank0": 0.06539796100332751,
+  "syncs": 12,
+  "bytes_sent_per_worker": 38873088,
+  "sample": "ROMEO:\nWhy must I swear?\n\nWARWICK:\nThank, in the strengthood of his treason hath home beheld:\nThese is stands for this peers.\n\nKING EDWARD IV:\nWhat thou we wilt not in this hither.\n\nDUKE OF YORK:\nI cannot speak thee, in my king-honours,\nThink on my flesh windering to the next.\n\nSecond Lord:\nMadam them mad"
+}
