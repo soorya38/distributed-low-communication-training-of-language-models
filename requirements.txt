@@ -1,2 +1,3 @@
 numpy>=1.22
-matplotlib>=3.5  # only needed for sweep_h.py
+matplotlib>=3.5  # experiments/ charts
+torch>=2.0       # diloco/ and torch_diloco/

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diloco-from-scratch"
+version = "0.1.0"
+description = "DiLoCo (Distributed Low-Communication training) for any PyTorch model, with quantized and streaming sync."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+dependencies = ["torch>=2.0"]
+
+[project.optional-dependencies]
+experiments = ["numpy>=1.22", "matplotlib>=3.5"]
+
+[project.urls]
+Homepage = "https://github.com/soorya38/distributed-low-communication-training-of-language-models"
+
+[tool.setuptools]
+packages = ["diloco"]

@@ -1,0 +1,19 @@
+# NVIDIA GPU override: docker compose -f compose.yaml -f compose.gpu.yaml up --build
+# Needs the NVIDIA Container Toolkit on the host.
+
+x-gpu: &gpu
+  build:
+    args:
+      TARGET: gpu
+  image: diloco:gpu
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            count: all
+            capabilities: [gpu]
+
+services:
+  node0: *gpu
+  node1: *gpu

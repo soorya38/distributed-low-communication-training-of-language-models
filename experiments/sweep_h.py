@@ -5,10 +5,8 @@ Every run does the same number of local steps per worker (TOTAL_STEPS); only how
 often workers synchronize changes. Results are averaged over several seeds and
 compared with the synchronous baseline, which communicates every step.
 
-Run with: python sweep_h.py   (writes docs/assets/h_sweep.png)
+Run with: python experiments/sweep_h.py   (writes docs/assets/h_sweep.png)
 """
-
-import os
 
 import matplotlib
 
@@ -16,25 +14,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
+from common import (BATCH_SIZE, INNER_HPARAMS, MOMENTUM_COEF, NUM_WORKERS, OUTER_LR, SEEDS,
+                    make_data, save)
 from model import *  # noqa: F401, F403
 
 TOTAL_STEPS = 160
 H_VALUES = [1, 2, 4, 5, 8, 10, 16, 20, 32, 40, 80, 160]
-SEEDS = range(5)
-NUM_WORKERS = 4
-BATCH_SIZE = 16
-INNER_HPARAMS = dict(lr=1e-2, beta1=0.9, beta2=0.999, eps=1e-8, weight_decay=1e-4)
-OUTER_LR = 0.7
-MOMENTUM_COEF = 0.9
-OUT_PATH = os.path.join(os.path.dirname(__file__), "docs", "assets", "h_sweep.png")
-
-
-def make_data(seed, num_samples=400, input_dim=8, num_classes=3, n_train=320):
-    rng = np.random.default_rng(seed)
-    x = rng.standard_normal((num_samples, input_dim))
-    true_w = rng.standard_normal((input_dim, num_classes))
-    y = np.argmax(x @ true_w + 0.1 * rng.standard_normal((num_samples, num_classes)), axis=1)
-    return x[:n_train], y[:n_train], x[n_train:], y[n_train:]
 
 
 def run_seed(seed):
@@ -100,9 +85,7 @@ def main():
     ax.legend(loc="lower left", frameon=False)
     fig.tight_layout()
 
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    fig.savefig(OUT_PATH)
-    print(f"saved {OUT_PATH}")
+    save(fig, "h_sweep.png")
 
 
 if __name__ == "__main__":

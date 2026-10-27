@@ -1,0 +1,36 @@
+# Two "machines" (containers) training one model over the network with torchrun.
+#
+#   docker compose up --build                                   # DiLoCo, CPU
+#   NET_DELAY=20ms NET_RATE=100mbit docker compose up           # ...over an emulated WAN link
+#   TRAIN_ARGS="--mode ddp --steps 500 --eval-interval 50 --out results/ddp.json" docker compose up
+#   docker compose -f compose.yaml -f compose.gpu.yaml up --build   # NVIDIA GPUs
+#
+# Results (JSON, written by global rank 0) land in ./results on the host.
+
+x-node: &node
+  build:
+    context: .
+    args:
+      TARGET: cpu
+  image: diloco:cpu
+  cap_add: [NET_ADMIN]
+  environment:
+    NET_DELAY: ${NET_DELAY:-}
+    NET_RATE: ${NET_RATE:-}
+    DILOCO_DEVICE: ${DILOCO_DEVICE:-}
+  volumes:
+    - ./results:/app/results
+  command: >
+    torchrun --nnodes=2 --nproc-per-node=${NPROC:-2}
+    --rdzv-backend=c10d --rdzv-endpoint=node0:29400 --rdzv-id=diloco
+    torch_diloco/train_lm.py
+    ${TRAIN_ARGS:---mode diloco --inner-steps 50 --steps 500 --eval-interval 50 --out results/diloco.json}
+
+services:
+  node0:
+    <<: *node
+    hostname: node0
+  node1:
+    <<: *node
+    hostname: node1
+    depends_on: [node0]
