@@ -271,8 +271,14 @@ def inner_train_worker(params, x_shard, y_shard, num_inner_steps, batch_size, lr
 
     return worker_params, mean_loss
 
-# Step 21 - init_outer_optimizer (not yet solved)
-# TODO: implement
+# Step 21 - init_outer_optimizer
+def init_outer_optimizer(params):
+    return {
+        "momentum": {
+            k: np.zeros_like(v)
+            for k, v in params.items()
+        }
+    }
 
 # Step 22 - update_outer_momentum (not yet solved)
 # TODO: implement
