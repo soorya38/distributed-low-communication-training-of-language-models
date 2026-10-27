@@ -12,7 +12,7 @@ python scaffold.py
 
 - [x] **1.** init_model_params
 - [x] **2.** relu
-- [ ] **3.** model_forward
+- [x] **3.** model_forward
 - [ ] **4.** softmax
 - [ ] **5.** cross_entropy_loss
 - [ ] **6.** model_backward
