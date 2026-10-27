@@ -26,7 +26,7 @@ python scaffold.py
 - [x] **14.** subtract_params
 - [x] **15.** average_params
 - [x] **16.** iid_shard_dataset
-- [ ] **17.** noniid_shard_dataset
+- [x] **17.** noniid_shard_dataset
 - [ ] **18.** sample_worker_batch
 - [ ] **19.** local_train_step
 - [ ] **20.** inner_train_worker

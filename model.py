@@ -184,8 +184,24 @@ def iid_shard_dataset(x, y, num_workers, seed=0):
         for shard in x_shards
     ]
 
-# Step 17 - noniid_shard_dataset (not yet solved)
-# TODO: implement
+# Step 17 - noniid_shard_dataset
+def noniid_shard_dataset(x, y, num_workers, num_classes, seed=0):
+    rng = np.random.default_rng(seed)
+    shards = []
+
+    for worker in range(num_workers):
+        worker_indices = np.where(
+            (y % num_workers) == worker
+        )[0]
+
+        rng.shuffle(worker_indices)
+
+        shards.append((
+            x[worker_indices],
+            y[worker_indices]
+        ))
+
+    return shards
 
 # Step 18 - sample_worker_batch (not yet solved)
 # TODO: implement
