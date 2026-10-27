@@ -420,11 +420,16 @@ def train_synchronous_baseline(init_params, worker_shards, num_steps, batch_size
 
     return params, history
 
-# Step 28 - evaluate_loss (not yet solved)
-# TODO: implement
+# Step 28 - evaluate_loss
+def evaluate_loss(params, x, y):
+    logits, _ = model_forward(params, x)
+    return float(cross_entropy_loss(logits, y))
 
-# Step 29 - classification_accuracy (not yet solved)
-# TODO: implement
+# Step 29 - classification_accuracy
+def classification_accuracy(params, x, y):
+    logits, _ = model_forward(params, x)
+    predictions = np.argmax(logits, axis=1)
+    return float(np.mean(predictions == y))
 
 # Step 30 - communication_savings (not yet solved)
 # TODO: implement
