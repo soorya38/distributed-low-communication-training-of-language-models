@@ -172,8 +172,17 @@ def average_params(params_list):
         for k in params_list[0]
     }
 
-# Step 16 - iid_shard_dataset (not yet solved)
-# TODO: implement
+# Step 16 - iid_shard_dataset
+def iid_shard_dataset(x, y, num_workers, seed=0):
+    rng = np.random.default_rng(seed)
+    indices = rng.permutation(len(x))
+
+    x_shards = np.array_split(indices, num_workers)
+
+    return [
+        (x[shard], y[shard])
+        for shard in x_shards
+    ]
 
 # Step 17 - noniid_shard_dataset (not yet solved)
 # TODO: implement
