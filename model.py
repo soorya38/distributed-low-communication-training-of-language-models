@@ -151,8 +151,12 @@ def clone_params(params):
         for k, v in params.items()
     }
 
-# Step 13 - scale_params (not yet solved)
-# TODO: implement
+# Step 13 - scale_params
+def scale_params(params, scalar):
+    return {
+        k: v * scalar
+        for k, v in params.items()
+    }
 
 # Step 14 - subtract_params (not yet solved)
 # TODO: implement
