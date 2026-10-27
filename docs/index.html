@@ -3,20 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DiLoCo: Distributed Low-Communication Training of Language Models</title>
+  <title>DiLoCo from Scratch</title>
+  <meta name="description" content="Distributed Low-Communication training from first principles: a pure-NumPy core, research extensions with measured results, and a PyTorch library with quantized and Streaming DiLoCo.">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #09090b;
-      --surface: #18181b;
-      --surface-alt: #27272a;
-      --border: #27272a;
-      --text: #fafafa;
-      --text-muted: #a1a1a6;
-      --accent: #fafafa;
-    }
-  }
   :root {
     --bg: #ffffff;
     --surface: #fafafa;
@@ -27,16 +17,47 @@
     --accent: #18181b;
     --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
     --sans: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #09090b;
+      --surface: #18181b;
+      --surface-alt: #27272a;
+      --border: #27272a;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --accent: #fafafa;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #09090b;
+    --surface: #18181b;
+    --surface-alt: #27272a;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #fafafa;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    scroll-behavior: smooth;
+  }
+  a { color: var(--text); text-underline-offset: 3px; }
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--surface-alt);
+    padding: 1px 5px;
+    border-radius: 4px;
   }
 
   .theme-toggle {
@@ -55,9 +76,7 @@
     justify-content: center;
     transition: all 0.2s ease;
   }
-  .theme-toggle:hover {
-    border-color: var(--text);
-  }
+  .theme-toggle:hover { border-color: var(--text); }
   .theme-toggle svg {
     width: 20px;
     height: 20px;
@@ -68,11 +87,12 @@
 
   .hero {
     position: relative;
-    min-height: 600px;
+    min-height: 560px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: 96px 24px;
     background: linear-gradient(135deg, var(--surface) 0%, var(--surface-alt) 100%);
   }
   .hero::before {
@@ -90,6 +110,7 @@
   .hero-content {
     position: relative;
     z-index: 2;
+    max-width: 820px;
     text-align: center;
     animation: fadeInUp 0.8s ease-out;
   }
@@ -101,15 +122,60 @@
     font-family: var(--mono);
     font-size: 48px;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 20px;
     letter-spacing: -0.02em;
     line-height: 1.2;
   }
+  .hero .tagline {
+    color: var(--text-muted);
+    font-size: 18px;
+    margin: 0 auto 32px;
+    max-width: 680px;
+  }
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+  .btn {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+  }
+  .btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 96px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .stat .num {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .label { color: var(--text-muted); font-size: 14px; }
 
   .wrap { max-width: 900px; margin: 0 auto; padding: 96px 24px; }
 
   .section {
     scroll-margin-top: 100px;
+    margin-bottom: 96px;
     animation: fadeIn 0.6s ease-out;
   }
   @keyframes fadeIn {
@@ -125,23 +191,8 @@
     margin: 0 0 32px;
     font-weight: 600;
   }
-  .input-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    margin-bottom: 64px;
-  }
-  .output-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-    margin-bottom: 96px;
-    min-height: 100px;
-  }
+  .lead { margin: 0 0 32px; line-height: 1.7; }
 
-  .how-section { margin-bottom: 96px; }
   .part-reveal {
     margin-bottom: 48px;
     animation: slideInLeft 0.6s ease-out;
@@ -159,9 +210,16 @@
   }
   .part-description {
     color: var(--text-muted);
-    margin-bottom: 24px;
+    margin: 0 0 16px;
     line-height: 1.7;
   }
+  .finding {
+    border-left: 3px solid var(--accent);
+    padding: 4px 0 4px 16px;
+    margin: 0 0 24px;
+  }
+  .run { color: var(--text-muted); font-size: 14px; margin: 0 0 16px; }
+
   .diagram-container {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -171,96 +229,331 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 250px;
   }
   .diagram-container svg {
     max-width: 100%;
     height: auto;
     color: var(--text);
   }
+  figure.chart {
+    margin: 0 0 24px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  figure.chart img { display: block; width: 100%; height: auto; }
 
+  .table-wrap { overflow-x: auto; margin-bottom: 24px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    white-space: nowrap;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--text-muted); font-weight: 600; }
+  tr.hl td { font-weight: 700; }
+
+  pre {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+    margin: 0 0 24px;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  ol.steps { padding-left: 20px; margin: 0 0 24px; }
+  ol.steps li { margin-bottom: 8px; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .hero { min-height: 0; padding: 96px 16px 64px; }
+    .hero h1 { font-size: 30px; }
+    .hero .tagline { font-size: 16px; }
+    .wrap { padding: 64px 16px; }
+    .stats { margin-bottom: 64px; }
+    .section { margin-bottom: 64px; }
+    .theme-toggle { top: 12px; right: 12px; }
+  }
 </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
     <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
   </button>
 
   <section class="hero" id="hero">
     <div class="hero-content">
-      <h1>DiLoCo: Distributed Low-Communication Training of Language Models</h1>
+      <h1>DiLoCo from Scratch</h1>
+      <p class="tagline">Distributed Low-Communication training from first principles: a pure-NumPy core with hand-written backprop and optimizers, research extensions with measured results, and a PyTorch library (quantized + Streaming DiLoCo) that wraps any <code>nn.Module</code> and runs in Docker on CPU or NVIDIA GPUs.</p>
+      <div class="hero-links">
+        <a class="btn primary" href="https://github.com/soorya38/distributed-low-communication-training-of-language-models">View on GitHub</a>
+        <a class="btn" href="https://arxiv.org/abs/2311.08455">Read the paper</a>
+      </div>
     </div>
   </section>
 
   <div class="wrap">
-    
+    <div class="stats">
+      <div class="stat"><div class="num">50×</div><div class="label">less data than DDP on a transformer LM, for 0.2% higher val loss</div></div>
+      <div class="stat"><div class="num">397×</div><div class="label">less data than DDP with 4-bit pseudo-gradients, loss inside seed noise</div></div>
+      <div class="stat"><div class="num">30×</div><div class="label">smaller sync bursts with Streaming DiLoCo (P=4) + 4-bit</div></div>
+      <div class="stat"><div class="num">1.64 vs 1.98</div><div class="label">val loss in the same wall time over an emulated 100 Mbit/s link</div></div>
+    </div>
 
-    <section class="section how-section" id="how-section">
-      <h2 class="section-title">How it was built</h2>
-      
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 1: Model, Forward &amp; Loss</h3>
-              <p class="part-description">Initialize parameters and implement the forward pass, activations, softmax, cross-entropy loss, and backprop that every worker will run locally.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 2: Inner Optimizer: AdamW</h3>
-              <p class="part-description">Build the per-worker AdamW optimizer: state init, moment updates, bias correction, the parameter step, and decoupled weight decay.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 3: Parameter Arithmetic Utilities</h3>
-              <p class="part-description">Implement the pytree-style parameter operations (clone, scale, subtract, average) that DiLoCo uses to compute pseudo-gradients and merge worker replicas.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 4: Data Sharding &amp; Local Worker Training</h3>
-              <p class="part-description">Partition the dataset across workers (IID and non-IID), sample per-worker batches, and run local training steps that emulate a single DiLoCo inner worker.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 5: Outer Optimizer with Nesterov Momentum</h3>
-              <p class="part-description">Implement the server-side outer optimizer: state init, momentum buffer updates, Nesterov parameter updates, and computing the outer pseudo-gradient from worker deltas.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 6: DiLoCo Training Loop &amp; Baseline</h3>
-              <p class="part-description">Compose everything into a full DiLoCo communication round, the outer training loop across rounds, and a synchronous SGD baseline for comparison.</p>
-              
-            </div>
-          
-            <div class="part-reveal" style="opacity: 1">
-              <h3 class="part-title">Part 7: Evaluation &amp; Communication Analysis</h3>
-              <p class="part-description">Measure held-out loss, classification accuracy, and quantify DiLoCo&#39;s communication savings versus the synchronous baseline.</p>
-              
-            </div>
-          
+    <section class="section" id="why">
+      <h2 class="section-title">Why this matters</h2>
+      <p class="lead">Data-parallel training usually all-reduces gradients after every step, which only works when every accelerator sits on the same fast interconnect. DiLoCo drops that requirement: each worker runs <strong>H local AdamW steps</strong> with no communication, then workers share one <strong>pseudo-gradient</strong> (how far their weights moved), and a <strong>Nesterov-momentum outer optimizer</strong> applies it to the global model. Communication drops by a factor of H while model quality holds up.</p>
+    </section>
+
+    <section class="section" id="algorithm">
+      <h2 class="section-title">The algorithm</h2>
+      <div class="diagram-container">
+        <svg viewBox="0 0 640 260" role="img" aria-label="DiLoCo round: global params broadcast to k workers, each runs H AdamW steps, pseudo-gradient is averaged, outer Nesterov step updates global params" font-family="JetBrains Mono, monospace" font-size="12" fill="currentColor">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>
+          </defs>
+          <g fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="10" y="105" width="120" height="50" rx="8"/>
+            <rect x="200" y="20" width="150" height="50" rx="8"/>
+            <rect x="200" y="105" width="150" height="50" rx="8"/>
+            <rect x="200" y="190" width="150" height="50" rx="8"/>
+            <rect x="420" y="105" width="200" height="50" rx="8"/>
+            <path d="M130 120 L198 50" marker-end="url(#arr)"/>
+            <path d="M130 130 L198 130" marker-end="url(#arr)"/>
+            <path d="M130 140 L198 210" marker-end="url(#arr)"/>
+            <path d="M350 45 L418 118" marker-end="url(#arr)"/>
+            <path d="M350 130 L418 130" marker-end="url(#arr)"/>
+            <path d="M350 215 L418 142" marker-end="url(#arr)"/>
+            <path d="M520 155 L520 250 L70 250 L70 157" marker-end="url(#arr)" stroke-dasharray="4 4"/>
+          </g>
+          <text x="70" y="134" text-anchor="middle">global θ</text>
+          <text x="275" y="49" text-anchor="middle">worker 1: H × AdamW</text>
+          <text x="275" y="134" text-anchor="middle">worker 2: H × AdamW</text>
+          <text x="275" y="219" text-anchor="middle">worker k: H × AdamW</text>
+          <text x="520" y="126" text-anchor="middle">Δ = θ − mean(θᵢ)</text>
+          <text x="520" y="144" text-anchor="middle">Nesterov outer step</text>
+          <text x="295" y="245" text-anchor="middle" fill-opacity="0.6">next round</text>
+        </svg>
+      </div>
+      <ol class="steps">
+        <li><strong>Broadcast:</strong> every worker starts from the current global params θ.</li>
+        <li><strong>Inner loop:</strong> each worker runs H AdamW steps on its own shard.</li>
+        <li><strong>Outer gradient:</strong> <code>Δ = θ − average(θ_1, …, θ_k)</code>.</li>
+        <li><strong>Outer update:</strong> <code>m ← μ·m + Δ</code>, then <code>θ ← θ − η·(Δ + μ·m)</code>.</li>
+      </ol>
+      <p class="part-description">Communication per round is one parameter-sized message per worker in each direction, against one per <em>step</em> for the synchronous baseline.</p>
+    </section>
+
+    <section class="section" id="how-section">
+      <h2 class="section-title">How the core was built</h2>
+      <p class="lead">The NumPy core in <a href="https://github.com/soorya38/distributed-low-communication-training-of-language-models/blob/main/model.py"><code>model.py</code></a> is built bottom-up from 30 small, tested functions. Every gradient, optimizer moment, and parameter update is written by hand.</p>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 1: Model, Forward &amp; Loss</h3>
+        <p class="part-description">Initialize parameters and implement the forward pass, activations, softmax, cross-entropy loss, and backprop that every worker will run locally. Softmax subtracts the row max and cross-entropy uses log-sum-exp, so logits of 1000+ don't overflow.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 2: Inner Optimizer: AdamW</h3>
+        <p class="part-description">Build the per-worker AdamW optimizer: state init, moment updates, bias correction, the parameter step, and decoupled weight decay.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 3: Parameter Arithmetic Utilities</h3>
+        <p class="part-description">Implement the pytree-style parameter operations (clone, scale, subtract, average) that DiLoCo uses to compute pseudo-gradients and merge worker replicas. Updates are pure functions that return new dicts, so workers never alias the global model.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 4: Data Sharding &amp; Local Worker Training</h3>
+        <p class="part-description">Partition the dataset across workers (IID and non-IID), sample per-worker batches, and run local training steps that emulate a single DiLoCo inner worker.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 5: Outer Optimizer with Nesterov Momentum</h3>
+        <p class="part-description">Implement the server-side outer optimizer: state init, momentum buffer updates, Nesterov parameter updates, and computing the outer pseudo-gradient from worker deltas.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 6: DiLoCo Training Loop &amp; Baseline</h3>
+        <p class="part-description">Compose everything into a full DiLoCo communication round, the outer training loop across rounds, and a synchronous data-parallel baseline that does the same number of gradient computations, so the comparison isolates communication frequency.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 7: Evaluation &amp; Communication Analysis</h3>
+        <p class="part-description">Measure held-out loss, classification accuracy, and quantify DiLoCo&#39;s communication savings versus the synchronous baseline.</p>
+        <p class="run"><code>python scaffold.py</code>: 4 workers, 8 rounds × 20 inner steps, a 2-layer MLP, synthetic 3-class data.</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Method</th><th>Syncs</th><th>Scalars sent</th><th>Eval loss</th><th>Eval acc</th></tr>
+            <tr><td>Synchronous data-parallel</td><td>160</td><td>249,600</td><td>0.2695</td><td>88.75%</td></tr>
+            <tr class="hl"><td>DiLoCo (H=20)</td><td>8</td><td>12,480</td><td>0.2593</td><td>90.00%</td></tr>
+          </table>
+        </div>
+        <p class="finding">20× less communication, with equal or slightly better accuracy.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 8: Sweeping H</h3>
+        <p class="run"><code>python experiments/sweep_h.py</code>: compute fixed at 160 local steps per worker, only the sync interval varies, 5 seeds.</p>
+        <figure class="chart"><img src="assets/h_sweep.png" alt="DiLoCo accuracy vs. number of synchronizations" loading="lazy"></figure>
+        <p class="finding">DiLoCo stays at or above the synchronous baseline (90.3%) up to 40× less communication (93.0% at H=40). It only breaks down at H=80, when workers sync just twice in the whole run.</p>
+      </div>
+    </section>
+
+    <section class="section" id="extensions">
+      <h2 class="section-title">Beyond the paper</h2>
+      <p class="lead">Each question below is answered with a reproducible script in <code>experiments/</code> or <code>torch_diloco/</code>. Re-run any of them to regenerate its chart.</p>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 9: IID vs. Non-IID Data</h3>
+        <p class="part-description">Dirichlet label-skew sharding, from IID to one class per worker, measured with a total-variation skew metric.</p>
+        <figure class="chart"><img src="assets/sharding.png" alt="DiLoCo accuracy under increasing label skew" loading="lazy"></figure>
+        <p class="finding">Synchronous training barely notices label skew (81–84% everywhere), but DiLoCo's tolerance for long inner loops shrinks as skew grows: with one class per worker it falls to 73.2% at H=20 and 49% at H=80. The more heterogeneous the data, the more often workers need to sync.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 10: Compressing Pseudo-Gradients</h3>
+        <p class="part-description">k-bit quantization down to 1-bit sign × mean, top-k sparsification, per-worker error feedback, and exact byte accounting including scales and indices.</p>
+        <figure class="chart"><img src="assets/compression.png" alt="Accuracy vs. bytes sent for quantization and top-k" loading="lazy"></figure>
+        <p class="finding">Even 1-bit pseudo-gradients match float32 accuracy (93.5% vs. 92.8%) while sending 19.3× fewer bytes, about 386× less traffic than synchronous training overall. Top-k does much worse at the same byte budget.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 11: Stragglers &amp; Asynchronous Updates</h3>
+        <p class="part-description">One worker 4× slower than the rest, on a simulated wall clock. Compared: waiting for it, deadline-based rounds with step-weighted averaging, and event-driven async DiLoCo with staleness discounting.</p>
+        <figure class="chart"><img src="assets/stragglers.png" alt="Accuracy over simulated wall-clock time with one 4x straggler" loading="lazy"></figure>
+        <p class="finding">Plain DiLoCo leaves the fast workers idle 56% of the time. Deadline rounds recover the straggler-free upper bound (90% in 120 s). Free-running async never waits but stale pushes hurt; a 1/(1+staleness) discount recovers 87.0% → 91.2%.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 12: A Transformer LM over <code>torch.distributed</code></h3>
+        <p class="part-description">A 0.81M-parameter character-level GPT on Tiny Shakespeare, trained by 4 real worker processes for 3,000 AdamW steps each. DDP vs. DiLoCo at the same compute.</p>
+        <figure class="chart"><img src="assets/torch_lm.png" alt="Validation loss for DDP vs. DiLoCo at several H" loading="lazy"></figure>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Run</th><th>Syncs</th><th>MB / worker</th><th>vs. DDP</th><th>Val loss</th></tr>
+            <tr><td>DDP</td><td>3,000</td><td>9,718</td><td>1×</td><td>1.5308</td></tr>
+            <tr><td>DiLoCo H=25</td><td>120</td><td>389</td><td>25×</td><td>1.5342</td></tr>
+            <tr class="hl"><td>DiLoCo H=50</td><td>60</td><td>194</td><td>50×</td><td>1.5341</td></tr>
+            <tr><td>DiLoCo H=100</td><td>30</td><td>97</td><td>100×</td><td>1.5512</td></tr>
+            <tr><td>DiLoCo H=250</td><td>12</td><td>39</td><td>250×</td><td>1.5942</td></tr>
+            <tr><td>DiLoCo H=500</td><td>6</td><td>19</td><td>500×</td><td>1.6702</td></tr>
+          </table>
+        </div>
+        <p class="finding">50× less data for a 0.2% higher validation loss, and 100× less for 1.3% higher.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 13: Quantized Pseudo-Gradients in PyTorch</h3>
+        <p class="part-description">Blockwise k-bit codes (one float32 scale per 1,024 values), bit-packed into <code>uint8</code>. Workers <code>all_gather</code> the packed payloads and every rank decodes and averages them in the same order, so global params stay bit-identical.</p>
+        <figure class="chart"><img src="assets/torch_quant.png" alt="Final loss vs. bytes for 8/4/2/1-bit pseudo-gradients" loading="lazy"></figure>
+        <p class="finding">8-bit and 4-bit land inside the float32 seed range (1.534–1.551), so 4-bit DiLoCo trains this LM sending 397× less data than DDP with no measurable quality loss. At 2 bits and below the loss rises above the noise band.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 14: Streaming DiLoCo</h3>
+        <p class="part-description">Parameters are split into P fragments that sync on staggered schedules, so only one fragment is on the wire at a time. Total traffic is unchanged; the burst size shrinks.</p>
+        <figure class="chart"><img src="assets/torch_streaming.png" alt="Peak MB per sync and final loss for P = 1, 2, 4, 8 fragments" loading="lazy"></figure>
+        <p class="finding">Peak bandwidth drops roughly P× at no measured cost in quality. Combined with 4-bit, each sync is a 108 KB burst, 30× smaller than plain DiLoCo's 3.2 MB.</p>
+      </div>
+
+      <div class="part-reveal">
+        <h3 class="part-title">Part 15: Real Wall-Clock Time over a Slow Link</h3>
+        <p class="part-description">Two Docker containers (4 workers) train the LM over a link throttled to 100 Mbit/s with 20 ms delay by <code>tc netem</code>. Times are measured, not simulated.</p>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Run</th><th>Link</th><th>Steps</th><th>MB / worker</th><th>Wall time</th><th>Val loss</th></tr>
+            <tr><td>DDP</td><td>unthrottled</td><td>300</td><td>971.8</td><td>35.0 s</td><td>1.9788</td></tr>
+            <tr><td>DDP</td><td>100 Mbit/s</td><td>300</td><td>971.8</td><td>188.0 s</td><td>1.9788</td></tr>
+            <tr><td>DiLoCo H=50</td><td>100 Mbit/s</td><td>300</td><td>19.4</td><td>33.2 s</td><td>2.1747</td></tr>
+            <tr class="hl"><td>DiLoCo H=50, 4-bit</td><td>100 Mbit/s</td><td>1,600</td><td>13.1</td><td>209.1 s</td><td>1.6433</td></tr>
+          </table>
+        </div>
+        <p class="finding">The slow link makes DDP 5.4× slower; DiLoCo on it runs as fast as DDP on an unthrottled one. In about the time DDP spends on 300 steps, 4-bit DiLoCo completes 1,600 and reaches 1.643 vs. 1.979.</p>
+      </div>
+    </section>
+
+    <section class="section" id="library">
+      <h2 class="section-title">Use it with your own model</h2>
+      <p class="lead">The <code>diloco</code> package wraps any PyTorch model and any inner optimizer. Keep your training loop and add one call after each optimizer step.</p>
+      <pre><code>pip install "git+https://github.com/soorya38/distributed-low-communication-training-of-language-models.git"</code></pre>
+      <pre><code>from diloco import DiLoCo, init_distributed
+
+rank, world_size, device = init_distributed()      # NCCL on GPUs, gloo on CPU
+torch.manual_seed(0)                               # same starting weights everywhere
+model = MyModel().to(device)
+inner_opt = torch.optim.AdamW(model.parameters(), lr=3e-4)
+diloco = DiLoCo(model, inner_steps=50,
+                quantize_bits=4,                   # optional: 4-bit + error feedback
+                num_fragments=4)                   # optional: Streaming DiLoCo
+
+for x, y in my_shard_of_the_data:
+    loss_fn(model(x), y).backward()
+    inner_opt.step()
+    inner_opt.zero_grad()
+    diloco.step()                                  # syncs when due; no-op otherwise
+
+with diloco.global_weights():
+    evaluate(model)</code></pre>
+      <p class="part-description">One <code>Dockerfile</code> builds a CPU or NVIDIA GPU image, and <code>docker compose up</code> trains one model across two containers over the network. The GPU path has not yet been tested on real NVIDIA hardware.</p>
+      <pre><code>docker build -t diloco:cpu . &amp;&amp; docker run --rm diloco:cpu
+docker compose up --build                                   # two "machines"
+NET_DELAY=20ms NET_RATE=100mbit docker compose up           # emulate a slow link
+docker compose -f compose.yaml -f compose.gpu.yaml up --build   # NVIDIA GPUs</code></pre>
+    </section>
+
+    <section class="section" id="references">
+      <h2 class="section-title">References</h2>
+      <ol class="steps">
+        <li>Douillard et al., <em>DiLoCo: Distributed Low-Communication Training of Language Models</em>, 2023. <a href="https://arxiv.org/abs/2311.08455">arXiv:2311.08455</a></li>
+        <li>Douillard et al., <em>Streaming DiLoCo with overlapping communication</em>, 2025. <a href="https://arxiv.org/abs/2501.18512">arXiv:2501.18512</a></li>
+        <li>Jaghouar et al., <em>OpenDiLoCo</em>, 2024. <a href="https://arxiv.org/abs/2407.07852">arXiv:2407.07852</a></li>
+        <li>Liu et al., <em>Asynchronous Local-SGD Training for Language Modeling</em>, 2024. <a href="https://arxiv.org/abs/2401.09135">arXiv:2401.09135</a></li>
+        <li>Karimireddy et al., <em>Error Feedback Fixes SignSGD</em>, 2019. <a href="https://arxiv.org/abs/1901.09847">arXiv:1901.09847</a></li>
+        <li>Loshchilov &amp; Hutter, <em>Decoupled Weight Decay Regularization</em>, 2019. <a href="https://arxiv.org/abs/1711.05101">arXiv:1711.05101</a></li>
+      </ol>
     </section>
   </div>
 
+  <footer>
+    MIT licensed · <a href="https://github.com/soorya38/distributed-low-communication-training-of-language-models">Source on GitHub</a>
+  </footer>
+
   <script>
+    function currentTheme() {
+      const set = document.documentElement.dataset.theme;
+      if (set) return set;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
     function toggleTheme() {
-      const html = document.documentElement;
-      const isDark = html.style.colorScheme === 'dark';
-      html.style.colorScheme = isDark ? 'light' : 'dark';
-      localStorage.setItem('theme', isDark ? 'light' : 'dark');
+      const next = currentTheme() === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch (e) {}
     }
-    function initTheme() {
+    try {
       const saved = localStorage.getItem('theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const isDark = saved === 'dark' || (saved === null && prefersDark);
-      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
-    }
-    initTheme();
-    window.scrollToOutput = function() {
-      const output = document.getElementById('output-section');
-      output?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    };
+      if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved;
+    } catch (e) {}
   </script>
 </body>
 </html>
