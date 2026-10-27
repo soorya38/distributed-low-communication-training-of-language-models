@@ -366,20 +366,6 @@ tests/                     # unit tests for all of the above
 docs/index.html            # walkthrough of how the core was built (GitHub Pages)
 ```
 
-## Possible extensions
-
-- [x] Sweep `H` (inner steps) and plot accuracy against communication
-- [x] Compare IID and non-IID sharding head-to-head
-- [x] Port to PyTorch with `torch.distributed` and train a small transformer LM
-- [x] Compress pseudo-gradients (quantization, top-k) on top of DiLoCo
-- [x] Asynchronous and straggler-tolerant outer updates
-- [x] Quantized pseudo-gradients in the PyTorch port
-- [x] Streaming DiLoCo: sync parameter fragments on a staggered schedule
-- [x] Reusable library for any PyTorch model, plus Docker images for CPU and NVIDIA GPUs
-- [x] Wall-clock benchmark over an emulated slow network link
-- [ ] Run across real machines on GPUs (NCCL) and measure wall-clock savings at scale
-- [ ] Overlap streaming fragment communication with compute, as in the Streaming DiLoCo paper
-
 ## References
 
 - Douillard et al., *DiLoCo: Distributed Low-Communication Training of Language Models*, 2023. [arXiv:2311.08455](https://arxiv.org/abs/2311.08455)
