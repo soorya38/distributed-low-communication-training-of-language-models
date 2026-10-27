@@ -94,8 +94,13 @@ def model_backward(params, cache, labels):
         "b2": db2,
     }
 
-# Step 7 - init_adamw_state (not yet solved)
-# TODO: implement
+# Step 7 - init_adamw_state
+def init_adamw_state(params):
+    return {
+        "m": {k: np.zeros_like(v) for k, v in params.items()},
+        "v": {k: np.zeros_like(v) for k, v in params.items()},
+        "t": 0,
+    }
 
 # Step 8 - update_adam_moments (not yet solved)
 # TODO: implement
