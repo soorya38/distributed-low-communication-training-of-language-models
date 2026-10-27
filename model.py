@@ -280,8 +280,17 @@ def init_outer_optimizer(params):
         }
     }
 
-# Step 22 - update_outer_momentum (not yet solved)
-# TODO: implement
+# Step 22 - update_outer_momentum
+import numpy as np
+
+def update_outer_momentum(outer_state, outer_grad, momentum_coef):
+    for k in outer_state["momentum"]:
+        outer_state["momentum"][k] = (
+            momentum_coef * outer_state["momentum"][k]
+            + outer_grad[k]
+        )
+
+    return outer_state
 
 # Step 23 - nesterov_param_update (not yet solved)
 # TODO: implement
