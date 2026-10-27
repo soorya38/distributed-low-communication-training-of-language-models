@@ -32,7 +32,7 @@ python scaffold.py
 - [x] **20.** inner_train_worker
 - [x] **21.** init_outer_optimizer
 - [x] **22.** update_outer_momentum
-- [ ] **23.** nesterov_param_update
+- [x] **23.** nesterov_param_update
 - [ ] **24.** compute_outer_gradient
 - [ ] **25.** run_diloco_round
 - [ ] **26.** train_diloco
