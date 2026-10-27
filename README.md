@@ -14,7 +14,7 @@ python scaffold.py
 - [x] **2.** relu
 - [x] **3.** model_forward
 - [x] **4.** softmax
-- [ ] **5.** cross_entropy_loss
+- [x] **5.** cross_entropy_loss
 - [ ] **6.** model_backward
 - [ ] **7.** init_adamw_state
 - [ ] **8.** update_adam_moments
