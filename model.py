@@ -135,8 +135,14 @@ def adam_param_step(params, m_hat, v_hat, lr, eps):
         for k in params
     }
 
-# Step 11 - decoupled_weight_decay (not yet solved)
-# TODO: implement
+# Step 11 - decoupled_weight_decay
+import numpy as np
+
+def decoupled_weight_decay(params, lr, weight_decay):
+    return {
+        k: v * (1 - lr * weight_decay)
+        for k, v in params.items()
+    }
 
 # Step 12 - clone_params (not yet solved)
 # TODO: implement
