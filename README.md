@@ -11,7 +11,7 @@ python scaffold.py
 ## Steps
 
 - [x] **1.** init_model_params
-- [ ] **2.** relu
+- [x] **2.** relu
 - [ ] **3.** model_forward
 - [ ] **4.** softmax
 - [ ] **5.** cross_entropy_loss

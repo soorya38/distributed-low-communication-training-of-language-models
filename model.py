@@ -17,8 +17,11 @@ def init_model_params(input_dim, hidden_dim, output_dim, seed=0):
         "b2": np.zeros(output_dim, dtype=np.float64),
     }
 
-# Step 2 - relu (not yet solved)
-# TODO: implement
+# Step 2 - relu
+import numpy as np
+
+def relu(x):
+    return np.maximum(0, x)
 
 # Step 3 - model_forward (not yet solved)
 # TODO: implement
