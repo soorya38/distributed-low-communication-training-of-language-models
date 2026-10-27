@@ -29,7 +29,7 @@ python scaffold.py
 - [x] **17.** noniid_shard_dataset
 - [x] **18.** sample_worker_batch
 - [x] **19.** local_train_step
-- [ ] **20.** inner_train_worker
+- [x] **20.** inner_train_worker
 - [ ] **21.** init_outer_optimizer
 - [ ] **22.** update_outer_momentum
 - [ ] **23.** nesterov_param_update

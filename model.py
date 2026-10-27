@@ -247,8 +247,29 @@ def local_train_step(params, adam_state, x_batch, y_batch, lr, beta1, beta2, eps
 
     return new_params, new_adam_state, loss
 
-# Step 20 - inner_train_worker (not yet solved)
-# TODO: implement
+# Step 20 - inner_train_worker
+def inner_train_worker(params, x_shard, y_shard, num_inner_steps, batch_size, lr, beta1, beta2, eps, weight_decay, seed):
+    rng = np.random.default_rng(seed)
+    worker_params = clone_params(params)
+    adam_state = init_adamw_state(worker_params)
+    total_loss = 0.0
+
+    for _ in range(num_inner_steps):
+        x_batch, y_batch = sample_worker_batch(
+            x_shard, y_shard, batch_size, rng
+        )
+
+        worker_params, adam_state, loss = local_train_step(
+            worker_params, adam_state,
+            x_batch, y_batch,
+            lr, beta1, beta2, eps, weight_decay
+        )
+
+        total_loss += loss
+
+    mean_loss = float(total_loss / num_inner_steps) if num_inner_steps > 0 else 0.0
+
+    return worker_params, mean_loss
 
 # Step 21 - init_outer_optimizer (not yet solved)
 # TODO: implement
