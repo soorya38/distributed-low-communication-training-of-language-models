@@ -21,7 +21,7 @@ python scaffold.py
 - [x] **9.** bias_correct_moments
 - [x] **10.** adam_param_step
 - [x] **11.** decoupled_weight_decay
-- [ ] **12.** clone_params
+- [x] **12.** clone_params
 - [ ] **13.** scale_params
 - [ ] **14.** subtract_params
 - [ ] **15.** average_params
