@@ -61,8 +61,38 @@ def cross_entropy_loss(logits, labels):
     true_logits = logits[np.arange(len(labels)), labels]
     return np.mean(log_sum_exp - true_logits)
 
-# Step 6 - model_backward (not yet solved)
-# TODO: implement
+# Step 6 - model_backward
+def model_backward(params, cache, labels):
+    x = cache["x"]
+    z1 = cache["z1"]
+    h1 = cache["h1"]
+    logits = cache["logits"]
+
+    N = x.shape[0]
+
+    # Softmax cross-entropy gradient
+    dlogits = softmax(logits)
+    dlogits[np.arange(N), labels] -= 1
+    dlogits /= N
+
+    # Output layer gradients
+    dW2 = h1.T @ dlogits
+    db2 = np.sum(dlogits, axis=0)
+
+    # Backpropagate through ReLU
+    dh1 = dlogits @ params["W2"].T
+    dz1 = dh1 * (z1 > 0)
+
+    # Input layer gradients
+    dW1 = x.T @ dz1
+    db1 = np.sum(dz1, axis=0)
+
+    return {
+        "W1": dW1,
+        "b1": db1,
+        "W2": dW2,
+        "b2": db2,
+    }
 
 # Step 7 - init_adamw_state (not yet solved)
 # TODO: implement

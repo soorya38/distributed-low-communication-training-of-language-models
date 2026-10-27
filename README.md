@@ -15,7 +15,7 @@ python scaffold.py
 - [x] **3.** model_forward
 - [x] **4.** softmax
 - [x] **5.** cross_entropy_loss
-- [ ] **6.** model_backward
+- [x] **6.** model_backward
 - [ ] **7.** init_adamw_state
 - [ ] **8.** update_adam_moments
 - [ ] **9.** bias_correct_moments
