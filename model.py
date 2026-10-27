@@ -158,8 +158,12 @@ def scale_params(params, scalar):
         for k, v in params.items()
     }
 
-# Step 14 - subtract_params (not yet solved)
-# TODO: implement
+# Step 14 - subtract_params
+def subtract_params(params_a, params_b):
+    return {
+        k: params_a[k] - params_b[k]
+        for k in params_a
+    }
 
 # Step 15 - average_params (not yet solved)
 # TODO: implement

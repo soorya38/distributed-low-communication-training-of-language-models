@@ -23,7 +23,7 @@ python scaffold.py
 - [x] **11.** decoupled_weight_decay
 - [x] **12.** clone_params
 - [x] **13.** scale_params
-- [ ] **14.** subtract_params
+- [x] **14.** subtract_params
 - [ ] **15.** average_params
 - [ ] **16.** iid_shard_dataset
 - [ ] **17.** noniid_shard_dataset
