@@ -13,7 +13,7 @@ python scaffold.py
 - [x] **1.** init_model_params
 - [x] **2.** relu
 - [x] **3.** model_forward
-- [ ] **4.** softmax
+- [x] **4.** softmax
 - [ ] **5.** cross_entropy_loss
 - [ ] **6.** model_backward
 - [ ] **7.** init_adamw_state
