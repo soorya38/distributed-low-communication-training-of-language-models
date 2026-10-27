@@ -29,7 +29,7 @@ import numpy as np
 def model_forward(params, x):
     """Run the 2-layer MLP forward pass and stash intermediates for backprop."""
     z1 = x @ params["W1"] + params["b1"]
-    h1 = np.maximum(0, z1)
+    h1 = relu(z1)
     logits = h1 @ params["W2"] + params["b2"]
 
     cache = {
