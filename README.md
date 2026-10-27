@@ -18,7 +18,7 @@ python scaffold.py
 - [x] **6.** model_backward
 - [x] **7.** init_adamw_state
 - [x] **8.** update_adam_moments
-- [ ] **9.** bias_correct_moments
+- [x] **9.** bias_correct_moments
 - [ ] **10.** adam_param_step
 - [ ] **11.** decoupled_weight_decay
 - [ ] **12.** clone_params
