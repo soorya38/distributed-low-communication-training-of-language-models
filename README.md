@@ -39,4 +39,4 @@ python scaffold.py
 - [x] **27.** train_synchronous_baseline
 - [x] **28.** evaluate_loss
 - [x] **29.** classification_accuracy
-- [ ] **30.** communication_savings
+- [x] **30.** communication_savings

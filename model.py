@@ -431,6 +431,18 @@ def classification_accuracy(params, x, y):
     predictions = np.argmax(logits, axis=1)
     return float(np.mean(predictions == y))
 
-# Step 30 - communication_savings (not yet solved)
-# TODO: implement
+# Step 30 - communication_savings
+def communication_savings(num_rounds, num_inner_steps, num_workers, param_count):
+    diloco_scalars = 2 * num_workers * param_count * num_rounds
+    sync_scalars = 2 * num_workers * param_count * num_rounds * num_inner_steps
+
+    ratio = diloco_scalars / sync_scalars if sync_scalars else 0.0
+    savings_factor = sync_scalars / diloco_scalars if diloco_scalars else 0.0
+
+    return {
+        "diloco_scalars": diloco_scalars,
+        "sync_scalars": sync_scalars,
+        "ratio": ratio,
+        "savings_factor": savings_factor,
+    }
 
