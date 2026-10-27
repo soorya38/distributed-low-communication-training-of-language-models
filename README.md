@@ -8,6 +8,12 @@ Build DiLoCo from scratch: workers train locally with AdamW for many steps, then
 python scaffold.py
 ```
 
+## Run tests
+
+```bash
+python -m unittest discover tests
+```
+
 ## Steps
 
 - [x] **1.** init_model_params
