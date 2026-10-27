@@ -165,8 +165,12 @@ def subtract_params(params_a, params_b):
         for k in params_a
     }
 
-# Step 15 - average_params (not yet solved)
-# TODO: implement
+# Step 15 - average_params
+def average_params(params_list):
+    return {
+        k: np.mean([params[k] for params in params_list], axis=0)
+        for k in params_list[0]
+    }
 
 # Step 16 - iid_shard_dataset (not yet solved)
 # TODO: implement
